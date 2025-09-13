@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My N1FW — Private</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg-1: #FFF8F6;        /* warm cream */
+      --bg-2: #FFF0F3;        /* pale rose */
+      --accent: #9B1F3A;      /* deep rose (accent) */
+      --accent-soft: #FF6F8E; /* warm pink */
+      --glass: rgba(255,255,255,0.65);
+      --muted: #4a2b2b;
+      --card-shadow: 0 20px 50px rgba(75,25,35,0.12);
+    }
+
+    /* base */
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial; background: linear-gradient(180deg,var(--bg-1),var(--bg-2)); color:var(--muted);}
+    *,*:before,*:after{box-sizing:border-box}
+
+    /* container (mobile-first stack) */
+    .wrap{
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+      gap:18px;
+      padding:20px;
+    }
+
+    /* header / brand area (shown when locked) */
+    .lock-card{
+      width:100%;
+      max-width:900px;
+      margin:0 auto;
+      border-radius:16px;
+      padding:18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0.65));
+      box-shadow: var(--card-shadow);
+      backdrop-filter: blur(8px) saturate(120%);
+      border: 1px solid rgba(255,255,255,0.6);
+    }
+
+    .brand {
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .brand .title {
+      font-family:'Playfair Display', serif;
+      font-size:20px;
+      color:var(--accent);
+      margin:0;
+    }
+    .brand .subtitle { font-size:13px; color:rgba(0,0,0,0.55); margin:0; }
+
+    /* password row */
+    .pw-row { display:flex; gap:10px; margin-top:14px; align-items:center; }
+    .pw-row input[type="password"]{
+      flex:1;
+      padding:12px 14px;
+      border-radius:10px;
+      border: 1px solid rgba(0,0,0,0.06);
+      background: rgba(255,255,255,0.85);
+      font-size:15px;
+      outline:none;
+    }
+    .pw-row button {
+      padding: 10px 14px;
+      border-radius:10px;
+      border:none;
+      background: linear-gradient(90deg,var(--accent),var(--accent-soft));
+      color:white;
+      font-weight:600;
+      cursor:pointer;
+      box-shadow: 0 12px 30px rgba(155,31,58,0.16);
+    }
+
+    .hint { font-size:12px; color:rgba(0,0,0,0.55); margin-top:8px; }
+
+    /* main area (hidden until unlock) */
+    .main {
+      display:none;
+      width:100%;
+      max-width:980px;
+      height: 90vhc;
+      margin:0 auto;
+      border-radius:14px;
+      padding:18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.88));
+      box-shadow: var(--card-shadow);
+      overflow:hidden;
+    }
+
+    /* make main scrollable inside the card (so whole page still scrolls naturally) */
+    .main-inner {
+      height: calc(88vh);
+      overflow:auto;
+      padding-right:6px;
+    }
+
+    .hero {
+      text-align:center;
+      padding-bottom:8px;
+    }
+    .hero h1 {
+      font-family:'Playfair Display', serif;
+      font-size:28px;
+      color:var(--accent);
+      margin:8px 0;
+    }
+    .hero p { margin:0; color:rgba(0,0,0,0.6); font-size:14px; }
+
+    /* time box (special) */
+    .time-box {
+      width:100%;
+      max-width:640px;
+      margin:18px auto;
+      padding:18px;
+      border-radius:14px;
+      background: linear-gradient(180deg, rgba(155,31,58,0.96), rgba(200,60,90,0.96));
+      color:#fff;
+      text-align:center;
+      box-shadow: 0 20px 60px rgba(155,31,58,0.14), 0 6px 18px rgba(0,0,0,0.08);
+      border:1px solid rgba(255,255,255,0.06);
+    }
+    .time-box .label { font-family:'Playfair Display', serif; font-size:14px; opacity:0.95; }
+    .time-box .big { font-size:18px; font-weight:700; margin-top:8px; letter-spacing:0.3px; }
+    .time-box .meta { font-size:12px; opacity:0.9; margin-top:6px; }
+
+    /* roadmap */
+    .roadmap { margin-top:14px; display:flex; flex-direction:column; gap:12px; }
+    .mile {
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      padding:12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.92));
+      border-radius:12px;
+      border:1px solid rgba(0,0,0,0.04);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+    }
+    .mile .num {
+      min-width:44px; min-height:44px; border-radius:50%;
+      display:grid; place-items:center;
+      background: linear-gradient(90deg,var(--accent),var(--accent-soft));
+      color:white; font-weight:700; box-shadow: 0 12px 30px rgba(155,31,58,0.12);
+      font-size:15px;
+    }
+    .mile .meta { color:var(--muted); font-size:14px; }
+    .mile .meta small { display:block; font-size:12px; color:rgba(0,0,0,0.55); margin-top:6px; }
+
+    /* maps */
+    .maps { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px; }
+    .maps .mapframe { width:100%; aspect-ratio:16/10; border-radius:10px; overflow:hidden; border:1px solid rgba(0,0,0,0.06); }
+    .maps iframe{ width:100%; height:100%; border:0; display:block; }
+
+    /* footer */
+    .footer { margin-top:14px; text-align:center; font-size:12px; color:rgba(0,0,0,0.55); }
+
+    /* responsiveness - larger screens show side-by-side layout */
+    @media (min-width:980px){
+      .wrap{padding:40px 60px;}
+      .panel-row { display:flex; gap:20px; align-items:flex-start; justify-content:center; }
+      .lock-card{flex:0 0 360px;}
+      .main{flex:1}
+      .main-inner{height:calc(100vh - 140px)}
+      .maps{grid-template-columns:1fr 1fr}
+    }
+
+    @media (max-width:760px){
+      .time-box{padding:14px}
+      .hero h1{font-size:22px}
+      .pw-row{flex-direction:column}
+      .pw-row input{width:100%}
+      .pw-row button{width:100%}
+      .maps{grid-template-columns:1fr}
+      .main-inner{height:calc(100vh - 300px)}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- top: lock + intro -->
+    <div class="lock-card" id="lockCard" role="region" aria-label="unlock area">
+      <div class="brand">
+        <div>
+          <div class="title">Private — My N1FW</div>
+          <div class="subtitle">A little place to keep my story safe. Unlock to view the timeline and maps.</div>
+        </div>
+      </div>
+
+      <div class="pw-row" style="margin-top:12px;">
+        <input aria-label="password" id="pw" type="password" placeholder="enter secret" />
+        <button id="unlock">Unlock</button>
+      </div>
+
+      <div class="hint">Tip: <code>The place where it all started</code>  <code>(roots)</code> or  <code>My dream notification. (actual stuff all lower)</code></div>
+    </div>
+
+    <!-- main content (hidden until unlock) -->
+    <div class="main" id="main" role="main" aria-hidden="true">
+      <div class="main-inner" id="mainInner">
+        <div class="hero" aria-labelledby="title">
+          <h1 id="title">Ryan ♥ Nethanya</h1>
+          <p class="lead">It all began on <strong>24 August 2025</strong> at <strong>3:30 PM</strong> — she didn't reject me, she gave me permission, and whispered "maybe someday". This page remembers that moment.</p>
+        </div>
+
+        <!-- time box (special) -->
+        <div class="time-box" role="status" aria-live="polite">
+          <div class="label">Since 24 Aug 2025 — 3:30 PM</div>
+          <div class="big" id="counter">Calculating…</div>
+          <div class="meta" id="metaTotals">—</div>
+        </div>
+
+        <!-- roadmap -->
+        <div class="roadmap" aria-label="roadmap">
+          <div class="mile">
+            <div class="num">1</div>
+            <div class="meta">
+              <strong>Day 1 — The Beginning</strong>
+              <small>24 Aug 2025 — 3:30 PM</small>
+              <div style="margin-top:6px;">She didn’t reject me. She let me look, teased, and maybe one day I could be her 💍.</div>
+            </div>
+          </div>
+
+          <div class="mile">
+            <div class="num">2</div>
+            <div class="meta">
+              <strong>Our Locations (Day 1)</strong>
+              <small>Satellite view — zoomed in</small>
+
+              <div class="maps" style="margin-top:10px;">
+                <div class="mapframe" title="Nethanya location">
+                  <iframe src="https://www.google.com/maps?q=8.152083853324024,77.30821425608488&z=19&t=k&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+                
+                <div class="mapframe" title="Ryan location">
+                  <iframe src="https://www.google.com/maps?q=8.140430503625769,77.30731713728309&z=19&t=k&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="mile">
+            <div class="num">3</div>
+            <div class="meta">
+              <strong>Growing Closer</strong>
+              <small>Many tender conversations later</small>
+              <div style="margin-top:6px;">Teasing, consent, hearts — every chat stitched me into her. ❤️</div>
+            </div>
+          </div>
+
+          <div class="mile">
+            <div class="num">4</div>
+            <div class="meta">
+              <strong>What’s Next?</strong>
+              <small>Future milestones</small>
+              <div style="margin-top:6px; font-weight:700;">???</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">Keep this page safe — refreshing will not reset the counter.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      // allowed passwords (lowercase)
+      const allowed = ['sjs','SJS', 'I love you ryan'];
+
+      const pw = document.getElementById('pw');
+      const unlockBtn = document.getElementById('unlock');
+      const main = document.getElementById('main');
+      const lockCard = document.getElementById('lockCard');
+      const mainInner = document.getElementById('mainInner');
+
+      // allow enter key
+      pw.addEventListener('keydown', function(e){
+        if(e.key === 'Enter') attemptUnlock();
+      });
+      unlockBtn.addEventListener('click', attemptUnlock);
+
+      function attemptUnlock(){
+        const v = (pw.value || '').trim().toLowerCase();
+        if (!v) { alert('Please enter password'); pw.focus(); return; }
+        if (allowed.includes(v)){
+          // reveal
+          lockCard.style.transition = 'all .32s ease';
+          lockCard.style.opacity = 0;
+          lockCard.style.transform = 'scale(.995) translateY(-8px)';
+          setTimeout(()=> lockCard.style.display = 'none', 300);
+
+          main.style.display = 'block';
+          main.setAttribute('aria-hidden','false');
+
+          // scroll to top and focus
+          setTimeout(()=> { window.scrollTo({top:0,behavior:'smooth'}); mainInner.focus?.(); }, 180);
+
+          startTimer();
+        } else {
+          // animation for wrong + small hint
+          lockCard.animate([{transform:'translateX(0)'},{transform:'translateX(-8px)'},{transform:'translateX(8px)'},{transform:'translateX(0)'}],{duration:360});
+          alert('Wrong password 💔');
+        }
+      }
+
+      // TIMER
+      function startTimer(){
+        const start = new Date('2025-08-24T15:30:00'); // local interpretation by browser
+        const counter = document.getElementById('counter');
+        const metaTotals = document.getElementById('metaTotals');
+
+        function pad(n){ return n.toString().padStart(2,'0'); }
+
+        function update(){
+          const now = new Date();
+          let diff = Math.max(0, now - start); // ms
+
+          const totalSeconds = Math.floor(diff/1000);
+          const sec = totalSeconds % 60;
+          const totalMinutes = Math.floor(totalSeconds/60);
+          const min = totalMinutes % 60;
+          const totalHours = Math.floor(totalMinutes/60);
+          const hr = totalHours % 24;
+          const totalDays = Math.floor(totalHours/24);
+          const years = Math.floor(totalDays/365);
+          const days = totalDays % 365;
+          // display human-friendly
+          const human = `${years ? years + (years===1?' year, ':' years, ') : ''}${days}d ${hr}h ${min}m ${sec}s`;
+          counter.textContent = human;
+          metaTotals.textContent = `Total: ${totalDays.toLocaleString()} days • ${totalSeconds.toLocaleString()} seconds`;
+        }
+
+        update();
+        window._lovetimer = setInterval(update,1000);
+      }
+    })();
+  </script>
+</body>
+</html>
